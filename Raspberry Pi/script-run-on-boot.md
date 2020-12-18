@@ -11,9 +11,9 @@ where you would usually log-in. Many linux distributions do not use or need a rc
 boot so if the embedded system accidently blinked power, it could recover.
 
 ### Getting into rc.local ###
-You need sudo level control to access the rc.local file. Use the command: sudo nano /etc/rc.local to edit the file on the Pi. Once you have access to the file,
-you can put in the script you want to run on boot. To do so, right before the "exit 0" line type in the typical "python" for executing a python script along with
-the file path. For example, if the file is located in the desktop of the user pi you would type: "python /home/pi/desktop/script.py." However, there is a small
+You need sudo level control to access the rc.local file. Use the command: ```sudo nano /etc/rc.local``` to edit the file on the Pi. Once you have access to the file,
+you can put in the script you want to run on boot. To do so, right before the ```exit 0``` line type in the typical "python" for executing a python script along with
+the file path. For example, if the file is located in the desktop of the user pi you would type: ```python /home/pi/desktop/script.py.``` However, there is a small
 thing to note here. If you do not include an ampersand (&) after the script path, the script will block the execution of the rest of the boot process. Without
 that character, the rc.local script waits for your script to break before continuing. Because of the rc.local placement in the boot process, this would only prevent
 the user from logging in so it isn't that big of a deal. Addiitionally, considering that we want data to collect for the entire duration the pi is deployed we actually
@@ -38,26 +38,24 @@ Utilizing systemd will require using a unit file. Unit files are text files that
 ### No GUI ###
 Basic scripts such as data collection, datalogging etc. do not need GUIs so, this is for them. Lets get started.
 
-First you need to create a .service file in the systemd directory: sudo nano /lib/systemd/scriptName.service
+First you need to create a .service file in the systemd directory: ```sudo nano /lib/systemd/scriptName.service```
 
 With the file open and ready for editing, lets enter the necessary information:
 ```
 [Unit]
-Description = A Script  // this does not matter. you can make it anything.
-After = multi-user.target // this does matter. It tells Linux when our program needs to be executed. In this case it is "After" multi-user.target
-// multi-user.target is a system state specifically the state where control is transferred to the user and occurs before the X system begins so no GUI.
-// using this state will allow for the script to run WITHOUT needing to log-in. This is customizable for whatever your needs are.
+Description = A Script    # this does not matter. you can make it anything.
+After = multi-user.target # this does matter. It tells Linux when our program needs to be executed. In this case it is "After" multi-user.target multi-user.target is a system                                state specifically the state where control is transferred to the user and occurs before the X system begins so no GUI. Using this state will allow                                for the script to run WITHOUT needing to log-in. This is customizable for whatever your needs are.
 
 [Service]
-ExecStart = /usr/bin/python3 /home/pi/script.py // ExecStart is the command that executes the script. First we specify where python3 is so Linux doesn't get confused.
-// then, we tell it where the script is so Linux doesn't get lost. Make sure you always use absolute paths otherwise Linux will get lost.
+ExecStart = /usr/bin/python3 /home/pi/script.py # ExecStart is the command that executes the script. First we specify where python3 is so Linux doesn't get confused then, we                                                        tell it where the script is so Linux doesn't get lost. Make sure you always use absolute paths otherwise Linux will get lost.
 
 [Install]
-WantedBy = multi-user.target  // WantedBy is kind of what it sounds like. It tells Linux what target we want our program to be included with. In this case, it is
- // multi-user.target but it could be other things too.
+WantedBy = multi-user.target  # WantedBytells Linux what target we want our program to be included with. In this case, it is multi-user.target
  ```
- SO, now that we have that file made we need to make sure systemd recognizes it. We do that with the command: sudo systemctl daemon-reload
- ***NOTE: you will need to do this command after every edit to the .service file.***
- Now, we need to make sure it understands it has to start this on boot. We do that like this: sudo systemctl enable scriptName.service
+ SO, now that we have that file made we need to make sure systemd recognizes it. We do that with the command: ```sudo systemctl daemon-reload```
  
- Reboot the system and see if it worked (sudo reboot).
+ ***NOTE: you will need to do this command after every edit to the .service file.***
+ 
+ Now, we need to make sure it understands it has to start this on boot. We do that like this: ```sudo systemctl enable scriptName.service```
+ 
+ Reboot the system and see if it worked: ```sudo reboot```
