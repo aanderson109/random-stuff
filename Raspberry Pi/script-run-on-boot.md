@@ -41,12 +41,24 @@ Basic scripts such as data collection, datalogging etc. do not need GUIs so, thi
 First you need to create a .service file in the systemd directory: sudo nano /lib/systemd/scriptName.service
 
 With the file open and ready for editing, lets enter the necessary information:
+(Using // to denote a comment)
+-------------------------------------------------
 [Unit]
-Description = A Script
-After = multi-user.target
+Description = A Script  // this does not matter. you can make it anything.
+After = multi-user.target // this does matter. It tells Linux when our program needs to be executed. In this case it is "After" multi-user.target
+// multi-user.target is a system state specifically the state where control is transferred to the user and occurs before the X system begins so no GUI.
+// using this state will allow for the script to run WITHOUT needing to log-in. This is customizable for whatever your needs are.
 
 [Service]
-ExecStart = /usr/bin/python3 /home/pi/script.py
+ExecStart = /usr/bin/python3 /home/pi/script.py // ExecStart is the command that executes the script. First we specify where python3 is so Linux doesn't get confused.
+// then, we tell it where the script is so Linux doesn't get lost. Make sure you always use absolute paths otherwise Linux will get lost.
 
 [Install]
-WantedBy = multi-user.target
+WantedBy = multi-user.target  // WantedBy is kind of what it sounds like. It tells Linux what target we want our program to be included with. In this case, it is
+ // multi-user.target but it could be other things too.
+ -------------------------------------------------
+ SO, now that we have that file made we need to make sure systemd recognizes it. We do that with the command: sudo systemctl daemon-reload
+ ***NOTE: you will need to do this command after every edit to the .service file.***
+ Now, we need to make sure it understands it has to start this on boot. We do that like this: sudo systemctl enable scriptName.service
+ 
+ Reboot the system and see if it worked (sudo reboot).
