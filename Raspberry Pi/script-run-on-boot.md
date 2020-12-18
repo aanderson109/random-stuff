@@ -35,4 +35,18 @@ Systemd allows you to specify when a script should run as other services are ini
 ### Unit Files ###
 Utilizing systemd will require using a unit file. Unit files are text files that provides systemd information about services, devices, and more. For this specific application (embedded accelerometer), we do not need a GUI which will make things easier. However, we will still go over the GUI section just incase it is relevant in the future. A side benefit of using this is the preservation of power which can be extremely useful especially for embedded applications such as this one.
 
-#### No GUI ####
+### No GUI ###
+Basic scripts such as data collection, datalogging etc. do not need GUIs so, this is for them. Lets get started.
+
+First you need to create a .service file in the systemd directory: sudo nano /lib/systemd/scriptName.service
+
+With the file open and ready for editing, lets enter the necessary information:
+[Unit]
+Description = A Script
+After = multi-user.target
+
+[Service]
+ExecStart = /usr/bin/python3 /home/pi/script.py
+
+[Install]
+WantedBy = multi-user.target
