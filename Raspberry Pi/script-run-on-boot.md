@@ -59,3 +59,31 @@ WantedBy = multi-user.target  # WantedBytells Linux what target we want our prog
  Now, we need to make sure it understands it has to start this on boot. We do that like this: ```sudo systemctl enable scriptName.service```
  
  Reboot the system and see if it worked: ```sudo reboot```
+
+### GUI ###
+If the script we are running needs to utilize graphical features we'll have to do it a different way.
+
+Create a new __.service__ file in the __systemd__ directory: ```sudo nano /lib/systemd/system/scriptName.service```
+
+Now we edit the file in a similar way to how we did it before:
+```
+[Unit]
+Description = Does a Thing # Same as before, this part doesn't really matter only for organization.
+
+[Service]                                            # where we specify environmental varibles like last time.
+Environment = DISPLAY=:0                             # connects to the primary display
+Environment = XAUTHORITY = /home/pi/.Xauthority      # tells our program where to find the proper credentials to use the X system
+ExecStart = /usr/bin/python3 /home/pi/scriptName.py  # command that executes the script. We tell it where the python3 is and where our script is. ***USE ABSOLUTE PATHS!***
+Restart = always                                     # tells the program to restart if it fails or exits
+RestartSec = 10s                                     # sets the reset time to every 10 seconds from the time it failed or exited
+KillMode = process                                   # kills all processes associated with our program if it fails or exits. Allows for a clean restart
+TimeoutSec = infinity                                # doesn't ever stop the execution of our program
+
+[Install]
+WantedBy = graphical.target
+```
+Once again, we have to tell systemd to recognize our file so we use: ```sudo systemctl daemon-reload```
+
+And, once again, we have to enable the file from boot with: ```sudo systemctl enable scriptName.service```
+
+Reboot to test it out with: ```sudo reboot```
